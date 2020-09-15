@@ -1,0 +1,44 @@
+{
+  "name": "@koobin/signaling-server",
+  "version": "1.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "David Asensio Cañas",
+    "email": "david.asensio@icloud.com"
+  },
+  "contributors": [
+    "Christian Dávila Segura <christian.davila@koobin.com>",
+    "Pere Malaret Briz <pere.malaret@koobin.com>",
+    "Oriol Colomer Aragonés <oriol.colomer@koobin.com>"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "jest --coverage --verbose",
+    "test:watch": "yarn test --watch"
+  },
+  "lint-staged": {
+    "*.js": [
+      "yarn lint:fix",
+      "true | jest --bail --findRelatedTests"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "jest": "^26.4.2",
+    "lint-staged": "^10.3.0",
+    "standard": "^14.3.4"
+  }
+}
