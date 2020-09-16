@@ -17,12 +17,14 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "dev": "babel src --out-dir dist --watch --verbose",
-    "build": "babel src --out-dir dist --verbose"
+    "dev": "servor src index.html 5000 --browser --reload",
+    "build": "babel src --out-dir dist --verbose",
+    "prepare": "yarn build"
   },
   "devDependencies": {
     "@babel/cli": "^7.11.5",
     "@babel/core": "^7.11.5",
-    "@babel/preset-env": "^7.11.5"
+    "@babel/preset-env": "^7.11.5",
+    "servor": "^4.0.2"
   }
 }
