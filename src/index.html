@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal working example</title>
+</head>
+<body>
+    <label>
+      Peer id:
+      <input id="peerIdInput" readonly type="text" />
+    </label>
+    <button id="connectButton">Connect</button>
+
+    <br />
+
+    <h4>Send message</h4>
+
+    <label>
+      Receiver:
+      <input id="receiverIdInput" type="text" />
+    </label>
+    
+    <label>
+      Message:
+      <input id="messageInput" type="text" />
+    </label>
+    <button id="sendButton">Send</button>
+
+    <ul id="messageList"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const $ = elementId => document.getElementById(elementId)
+
+      const $peerIdInput = $('peerIdInput')
+      const $connectButton = $('connectButton')
+      const $receiverIdInput = $('receiverIdInput')
+      const $messageInput = $('messageInput')
+      const $sendButton = $('sendButton')
+
+      const $messageList = $('messageList')
+
+      $connectButton.addEventListener('click', () => {
+        setupConnection()
+      })
+
+      $sendButton.addEventListener('click', () => {
+        sendMessage({
+          peerId: $receiverIdInput.value,
+          message: $messageInput.value
+        })
+
+        $messageInput.value = ''
+      })
+
+      function newMessageElement (content) {
+        const item = document.createElement('li');
+        item.innerText = content;
+        return item;
+      };
+
+      let socket = null;
+
+      function setupConnection () {
+        socket = io();
+
+        socket.on('identify', peerId => {
+          $peerIdInput.value = peerId
+        });
+
+        socket.on('message', message => {
+          $messageList.append(
+            newMessageElement(message)
+          )
+        });
+      }
+
+      function sendMessage (data) {
+        socket.emit('message', data)
+      }
+    </script>
+</body>
+</html>
