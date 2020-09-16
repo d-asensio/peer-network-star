@@ -1,5 +1,7 @@
 const fs = require('fs')
 const path = require('path')
+const http = require('http')
+
 const socketIO = require('socket.io')
 const Emittery = require('emittery')
 
@@ -7,7 +9,7 @@ const CLIENT_HTML_FILE = path.join(__dirname, 'index.html')
 
 const htmlContent = fs.readFileSync(CLIENT_HTML_FILE, 'utf8')
 
-const httpServer = require('http').createServer((req, res) => {
+const httpServer = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'text/html')
   res.setHeader('Content-Length', Buffer.byteLength(htmlContent))
   res.end(htmlContent)
