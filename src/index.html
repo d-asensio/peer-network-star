@@ -9,49 +9,64 @@
       Peer id:
       <input id="peerIdInput" readonly type="text" />
     </label>
+    
+    <br />
+    <br />
+
+    <label>
+      Room id:
+      <input id="roomIdInput" type="text" />
+    </label>
+    <label>
+      Is primary node:
+      <input id="primaryNodeCheckbox" type="checkbox" />
+    </label>
     <button id="connectButton">Connect</button>
 
     <br />
 
-    <h4>Send message</h4>
-
-    <label>
-      Receiver:
-      <input id="receiverIdInput" type="text" />
-    </label>
+    <h4>Send signal</h4>
     
     <label>
-      Message:
-      <input id="messageInput" type="text" />
+      Signal:
+      <input id="signalInput" type="text" />
     </label>
     <button id="sendButton">Send</button>
 
-    <ul id="messageList"></ul>
+    <h4>Received signals</h4>
+
+    <ul id="signalList"></ul>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      const $ = elementId => document.getElementById(elementId)
-
       const $peerIdInput = $('peerIdInput')
+
+      const $roomIdInput = $('roomIdInput')
+      const $primaryNodeCheckbox = $('primaryNodeCheckbox')
       const $connectButton = $('connectButton')
-      const $receiverIdInput = $('receiverIdInput')
-      const $messageInput = $('messageInput')
+
+      const $signalInput = $('signalInput')
       const $sendButton = $('sendButton')
 
-      const $messageList = $('messageList')
+      const $signalList = $('signalList')
 
       $connectButton.addEventListener('click', () => {
-        setupConnection()
+        const connectionData = getConnectionData()
+
+        initConnection(connectionData)
       })
 
       $sendButton.addEventListener('click', () => {
-        sendMessage({
-          peerId: $receiverIdInput.value,
-          message: $messageInput.value
-        })
+        sendSignal($signalInput.value)
 
-        $messageInput.value = ''
+        $signalInput.value = ''
       })
+
+      //** DOM HELPERS **/
+
+      function $ (elementId) {
+        return document.getElementById(elementId)
+      }
 
       function newMessageElement (content) {
         const item = document.createElement('li');
@@ -59,24 +74,44 @@
         return item;
       };
 
-      let socket = null;
-
-      function setupConnection () {
-        socket = io();
-
-        socket.on('identify', peerId => {
-          $peerIdInput.value = peerId
-        });
-
-        socket.on('message', message => {
-          $messageList.append(
-            newMessageElement(message)
-          )
-        });
+      function getConnectionData () {
+        return {
+          roomId: $roomIdInput.value,
+          isPrimaryNode: $primaryNodeCheckbox.checked
+        }
       }
 
-      function sendMessage (data) {
-        socket.emit('message', data)
+      //** MANAGE CONNECTION **/
+
+      let socket = null;
+
+      function initConnection (connectionData) {
+        closeConnectionIfAny()
+
+        socket = io({
+          query: connectionData
+        })
+
+        socket.on('identify', id => {
+          $peerIdInput.value = id
+        })
+
+        socket.on('signal', message => {
+          console.log(message)
+          $signalList.append(
+            newMessageElement(message)
+          )
+        })
+      }
+
+      function sendSignal (data) {
+        socket.emit('signal', data)
+      }
+
+      function closeConnectionIfAny () {
+        if (socket !== null) {
+          socket.close()
+        }
       }
     </script>
 </body>
