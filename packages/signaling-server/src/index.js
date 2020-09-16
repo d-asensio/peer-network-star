@@ -1,27 +1,13 @@
-const fs = require('fs')
-const path = require('path')
-const http = require('http')
-
 const socketIO = require('socket.io')
 const Emittery = require('emittery')
 
-const CLIENT_HTML_FILE = path.join(__dirname, 'index.html')
-
-const htmlContent = fs.readFileSync(CLIENT_HTML_FILE, 'utf8')
-
-const httpServer = http.createServer((req, res) => {
-  res.setHeader('Content-Type', 'text/html')
-  res.setHeader('Content-Length', Buffer.byteLength(htmlContent))
-  res.end(htmlContent)
+const io = socketIO({
+  serveClient: false
 })
-
-const io = socketIO(httpServer)
 
 io.on('connect', handleNewConnection)
 
-httpServer.listen(3000, () => {
-  console.log('go to http://localhost:3000')
-})
+io.listen(3000)
 
 class Node {
   constructor (id, isPrimary = false) {

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Peer Client example</title>
+</head>
+<body>
+    <label>
+      Peer id:
+      <input id="peerIdInput" readonly type="text" />
+    </label>
+    
+    <br />
+    <br />
+
+    <label>
+      Room id:
+      <input id="roomIdInput" type="text" />
+    </label>
+    <label>
+      Is primary node:
+      <input id="primaryNodeCheckbox" type="checkbox" />
+    </label>
+    <button id="connectButton">Connect</button>
+
+    <br />
+
+    <h4>Send signal</h4>
+    
+    <label>
+      Signal:
+      <input id="signalInput" type="text" />
+    </label>
+    <button id="sendButton">Send</button>
+
+    <h4>Received signals</h4>
+
+    <ul id="signalList"></ul>
+</body>
+</html>
