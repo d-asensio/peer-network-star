@@ -1,0 +1,26 @@
+{
+  "name": "@koobin/signaling-server",
+  "version": "1.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "David Asensio Cañas",
+    "email": "david.asensio@icloud.com"
+  },
+  "contributors": [
+    "Christian Dávila Segura <christian.davila@koobin.com>",
+    "Pere Malaret Briz <pere.malaret@koobin.com>",
+    "Oriol Colomer Aragonés <oriol.colomer@koobin.com>"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./src/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "emittery": "^0.7.1",
+    "socket.io": "^2.3.0"
+  }
+}

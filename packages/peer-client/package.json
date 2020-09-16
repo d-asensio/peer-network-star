@@ -18,34 +18,11 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "babel src --out-dir dist --watch --verbose",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test": "jest --coverage --verbose",
-    "test:watch": "yarn test --watch"
-  },
-  "lint-staged": {
-    "*.js": [
-      "yarn lint:fix",
-      "true | jest --bail --findRelatedTests"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "standard": {
-    "env": [
-      "jest"
-    ]
+    "build": "babel src --out-dir dist --verbose"
   },
   "devDependencies": {
     "@babel/cli": "^7.11.5",
     "@babel/core": "^7.11.5",
-    "@babel/preset-env": "^7.11.5",
-    "husky": "^4.2.5",
-    "jest": "^26.4.2",
-    "lint-staged": "^10.3.0",
-    "standard": "^14.3.4"
+    "@babel/preset-env": "^7.11.5"
   }
 }

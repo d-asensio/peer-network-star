@@ -1,5 +1,5 @@
 {
-  "name": "@koobin/signaling-server",
+  "name": "@koobin/p2p",
   "version": "1.1.0",
   "private": true,
   "license": "MIT",
@@ -12,9 +12,11 @@
     "Pere Malaret Briz <pere.malaret@koobin.com>",
     "Oriol Colomer Aragonés <oriol.colomer@koobin.com>"
   ],
-  "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "nodemon ./src/index.js",
+    "dev": "lerna run --parallel dev",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "test": "jest --coverage --verbose",
@@ -39,12 +41,8 @@
   "devDependencies": {
     "husky": "^4.2.5",
     "jest": "^26.4.2",
+    "lerna": "^3.22.1",
     "lint-staged": "^10.3.0",
-    "nodemon": "^2.0.4",
     "standard": "^14.3.4"
-  },
-  "dependencies": {
-    "emittery": "^0.7.1",
-    "socket.io": "^2.3.0"
   }
 }
