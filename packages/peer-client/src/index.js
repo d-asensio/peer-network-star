@@ -1,10 +1,6 @@
 import io from 'socket.io-client'
-import SimplePeer from 'simple-peer'
-import hat from 'hat'
 
-const generateUniqueId = hat.rack()
-
-const $peerIdInput = $('peerIdInput')
+import NodeFactory from './NodeFactory'
 
 const $roomIdInput = $('roomIdInput')
 const $primaryNodeCheckbox = $('primaryNodeCheckbox')
@@ -44,9 +40,7 @@ function writeMessage (message) {
 /** MANAGE CONNECTION **/
 
 let socket = null
-let peer = null
-
-const siblingPeers = new Map()
+let node = null
 
 function initConnection (connectionData) {
   closeConnectionIfAny()
@@ -57,58 +51,20 @@ function initConnection (connectionData) {
     query: connectionData
   })
 
-  if (!isPrimaryNode) {
-    const siblingId = generateUniqueId()
+  node = NodeFactory.createInstance({ isPrimaryNode })
 
-    peer = new SimplePeer({
-      initiator: true
-    })
+  node.on(
+    'signal',
+    data => socket.emit('signal', data)
+  )
 
-    peer.on('signal', data => {
-      socket.emit('signal', {
-        ...data,
-        siblingId
-      })
-    })
+  node.on(
+    'data',
+    data => writeMessage(data)
+  )
 
-    peer.on('data', data => {
-      writeMessage(data)
-    })
-
-    socket.on('signal', data => {
-      if (data.siblingId === siblingId) {
-        peer.signal(data)
-      }
-    })
-  } else {
-    socket.on('signal', data => {
-      const { siblingId, ...signaldata } = data
-
-      if (!siblingPeers.has(siblingId)) {
-        const newSiblingPeer = new SimplePeer()
-
-        newSiblingPeer.on('signal', data => {
-          socket.emit('signal', {
-            ...data,
-            siblingId
-          })
-        })
-
-        newSiblingPeer.on('data', data => {
-          writeMessage(data)
-        })
-
-        siblingPeers.set(siblingId, newSiblingPeer)
-      }
-
-      const siblingPeer = siblingPeers.get(siblingId)
-
-      siblingPeer.signal(signaldata)
-    })
-  }
-
-  socket.on('identify', id => {
-    $peerIdInput.value = id
+  socket.on('signal', data => {
+    node.signal(data)
   })
 }
 
@@ -119,11 +75,5 @@ function closeConnectionIfAny () {
 }
 
 $sendButton.addEventListener('click', () => {
-  if (peer !== null) {
-    peer.send($messageInput.value)
-  }
-
-  for (const [, siblingPeer] of siblingPeers) {
-    siblingPeer.send($messageInput.value)
-  }
+  node.send($messageInput.value)
 })

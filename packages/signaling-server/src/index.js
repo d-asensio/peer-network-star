@@ -222,8 +222,6 @@ function handleNewConnection (socket) {
 
     room.addNode(node)
 
-    io.to(id).emit('identify', id)
-
     socket.on('disconnect', () => {
       room.removeNode(node.id)
     })

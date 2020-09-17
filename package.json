@@ -1,5 +1,5 @@
 {
-  "name": "@koobin/p2p",
+  "name": "@koobin/peer-network",
   "version": "1.1.0",
   "private": true,
   "license": "MIT",

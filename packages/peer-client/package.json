@@ -32,6 +32,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "emittery": "^0.7.1",
     "hat": "^0.0.3",
     "simple-peer": "^9.7.2",
     "socket.io-client": "^2.3.0"
