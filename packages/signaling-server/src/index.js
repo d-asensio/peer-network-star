@@ -82,6 +82,7 @@ class Room {
 
     this._primaryNode = node
 
+    this._notifyNewPrimary()
     this._suscribeToPrimaryNodeEvents()
   }
 
@@ -92,6 +93,10 @@ class Room {
         'change the primary node by unregistering the current one first.'
       )
     }
+  }
+
+  _notifyNewPrimary () {
+    this._eventBus.emit('newPrimaryNode', this._primaryNode)
   }
 
   _suscribeToPrimaryNodeEvents () {
@@ -109,8 +114,6 @@ class Room {
     this._validSiblingOrThrow(node)
 
     this._siblingNodesById.set(node.id, node)
-
-    this._eventBus.emit('newSibling', node)
 
     this._suscribeToSiblingNodeEvents(node)
   }
@@ -192,11 +195,11 @@ const roomPool = {
         io.to(id).emit('signal', signal)
       })
 
-      room.on('newSibling', node => {
-        const { signals } = room.primaryNode
-
-        for (const signal of signals) {
-          io.to(node.id).emit('signal', signal)
+      room.on('newPrimaryNode', node => {
+        for (const { signals } of room.siblingNodes) {
+          for (const signal of signals) {
+            io.to(node.id).emit('signal', signal)
+          }
         }
       })
 
