@@ -22,7 +22,12 @@ class SiblingNode {
   }
 
   send (message) {
-    this._peerConnection.send(message)
+    const messageString = JSON.stringify({
+      senderId: this._id,
+      message
+    })
+
+    this._peerConnection.send(messageString)
   }
 
   signal (data) {
@@ -36,22 +41,31 @@ class SiblingNode {
   _attachConnectionEvents () {
     this._peerConnection.on(
       'signal',
-      data => this._handleGeneratedSignal(data)
+      signal => this._handleGeneratedSignal(signal)
     )
 
     this._peerConnection.on(
       'data',
-      data => this._eventBus.emit('data', data)
+      dataString => this._handleReceivedData(dataString)
     )
   }
 
-  _handleGeneratedSignal (data) {
+  _handleGeneratedSignal (signal) {
     this._eventBus.emit(
       'signal',
       {
         siblingId: this._id,
-        ...data
+        ...signal
       }
+    )
+  }
+
+  _handleReceivedData (dataString) {
+    const data = JSON.parse(dataString)
+
+    this._eventBus.emit(
+      'message',
+      data
     )
   }
 }

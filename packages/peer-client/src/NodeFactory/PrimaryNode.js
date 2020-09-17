@@ -1,8 +1,13 @@
 import PeerConnection from 'simple-peer'
 import Emittery from 'emittery'
+import hat from 'hat'
+
+const generateUniqueId = hat.rack()
 
 class PrimaryNode {
   constructor () {
+    this._id = generateUniqueId()
+
     this._siblingsById = new Map()
 
     this._eventBus = new Emittery()
@@ -12,26 +17,35 @@ class PrimaryNode {
     return this._eventBus.on(eventName, eventHandler)
   }
 
-  send (message) {
-    for (const [, siblingPeer] of this._siblingsById) {
-      siblingPeer.send(message)
+  send (message, receiverIds = this._siblingsById.keys()) {
+    const messageString = JSON.stringify({
+      senderId: this._id,
+      message
+    })
+
+    for (const receiverId of receiverIds) {
+      const receiverSibling = this._siblingsById.get(receiverId)
+
+      if (receiverSibling) {
+        receiverSibling.send(messageString)
+      }
     }
   }
 
-  signal (data) {
-    const { siblingId, ...signaldata } = data
+  signal (signal) {
+    const { siblingId, ...signaldata } = signal
 
     if (!this._siblingsById.has(siblingId)) {
       const newSiblingPeer = new PeerConnection()
 
       newSiblingPeer.on(
         'signal',
-        data => this._handleSiblingSignal(siblingId, data)
+        signal => this._handleSiblingSignal(siblingId, signal)
       )
 
       newSiblingPeer.on(
         'data',
-        data => this._eventBus.emit('data', data)
+        dataString => this._handleReceivedSiblingData(dataString)
       )
 
       this._siblingsById.set(siblingId, newSiblingPeer)
@@ -42,13 +56,22 @@ class PrimaryNode {
     siblingPeer.signal(signaldata)
   }
 
-  _handleSiblingSignal (siblingId, data) {
+  _handleSiblingSignal (siblingId, signal) {
     this._eventBus.emit(
       'signal',
       {
         siblingId,
-        ...data
+        ...signal
       }
+    )
+  }
+
+  _handleReceivedSiblingData (dataString) {
+    const data = JSON.parse(dataString)
+
+    this._eventBus.emit(
+      'message',
+      data
     )
   }
 }

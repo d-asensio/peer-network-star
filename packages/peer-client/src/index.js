@@ -11,10 +11,26 @@ const $chatMessageList = $('chatMessageList')
 const $messageInput = $('messageInput')
 const $sendButton = $('sendButton')
 
+const $targetsField = $('targetsField')
+const $targetsIdInput = $('targetsIdInput')
+
+/** UI MANAGEMENT */
+
 $connectButton.addEventListener('click', () => {
   const connectionData = getConnectionData()
 
   initConnection(connectionData)
+})
+
+$sendButton.addEventListener('click', () => {
+  node.send(
+    $messageInput.value,
+    getTargets()
+  )
+})
+
+$primaryNodeCheckbox.addEventListener('change', e => {
+  showTargetsField(e.target.checked)
 })
 
 /** DOM HELPERS **/
@@ -23,18 +39,32 @@ function $ (elementId) {
   return document.getElementById(elementId)
 }
 
-function getConnectionData () {
-  return {
-    roomId: $roomIdInput.value,
-    isPrimaryNode: $primaryNodeCheckbox.checked
-  }
+function writeMessage ({ senderId, message }) {
+  const $messageWrapperItem = document.createElement('li')
+
+  const $senderIdItem = document.createElement('i')
+  $senderIdItem.appendChild(
+    document.createTextNode(`${senderId} `)
+  )
+
+  const $messageItem = document.createElement('span')
+  $messageItem.appendChild(
+    document.createTextNode(message)
+  )
+
+  $messageWrapperItem.appendChild($senderIdItem)
+  $messageWrapperItem.appendChild($messageItem)
+
+  $chatMessageList.appendChild($messageWrapperItem)
 }
 
-function writeMessage (message) {
-  const $messageItem = document.createElement('li')
-  $messageItem.innerText = message
+function showTargetsField (show) {
+  $targetsField.style.display = show ? 'initial' : 'none'
+}
 
-  $chatMessageList.append($messageItem)
+function getTargets () {
+  if ($targetsIdInput.value === '') return undefined
+  return $targetsIdInput.value.split(',').map(t => t.trim())
 }
 
 /** MANAGE CONNECTION **/
@@ -59,8 +89,8 @@ function initConnection (connectionData) {
   )
 
   node.on(
-    'data',
-    data => writeMessage(data)
+    'message',
+    writeMessage
   )
 
   socket.on('signal', data => {
@@ -74,6 +104,9 @@ function closeConnectionIfAny () {
   }
 }
 
-$sendButton.addEventListener('click', () => {
-  node.send($messageInput.value)
-})
+function getConnectionData () {
+  return {
+    roomId: $roomIdInput.value,
+    isPrimaryNode: $primaryNodeCheckbox.checked
+  }
+}
