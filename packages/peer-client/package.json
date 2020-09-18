@@ -1,7 +1,7 @@
 {
   "name": "peer-client-star-network",
   "version": "1.0.0-beta",
-  "private": true,
+  "private": false,
   "license": "MIT",
   "author": {
     "name": "David Asensio Cañas",
