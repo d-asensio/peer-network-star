@@ -1,6 +1,6 @@
 {
-  "name": "@koobin/signaling-server",
-  "version": "1.1.0",
+  "name": "signaling-server-star-network",
+  "version": "1.0.0-beta",
   "private": true,
   "license": "MIT",
   "author": {
@@ -12,15 +12,19 @@
     "Pere Malaret Briz <pere.malaret@koobin.com>",
     "Oriol Colomer Aragonés <oriol.colomer@koobin.com>"
   ],
-  "main": "index.js",
+  "main": "src/index.js",
+  "bin": {
+    "signaling-server": "bin/signaling-server.js"
+  },
   "scripts": {
-    "dev": "nodemon ./src/index.js"
+    "dev": "nodemon bin/signaling-server.js --port 3000"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
   },
   "dependencies": {
     "emittery": "^0.7.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "yargs": "^16.0.3"
   }
 }
