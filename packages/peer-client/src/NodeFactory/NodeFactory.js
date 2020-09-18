@@ -3,9 +3,9 @@ import SiblingNode from './SiblingNode'
 
 class NodeFactory {
   static createInstance (context) {
-    const { isPrimaryNode } = context
+    const { isPrimary } = context
 
-    if (isPrimaryNode) {
+    if (isPrimary) {
       return new PrimaryNode()
     } else {
       return new SiblingNode()

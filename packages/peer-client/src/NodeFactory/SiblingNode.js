@@ -17,6 +17,8 @@ class SiblingNode {
     this._attachConnectionEvents()
   }
 
+  get isPrimary () { return false }
+
   on (eventName, eventHandler) {
     return this._eventBus.on(eventName, eventHandler)
   }
@@ -36,6 +38,12 @@ class SiblingNode {
     if (data.siblingId === this._id) {
       this._peerConnection.signal(signalData)
     }
+  }
+
+  close () {
+    this._eventBus.clearListeners()
+
+    this._peerConnection.destroy()
   }
 
   _attachConnectionEvents () {

@@ -1,18 +1,12 @@
-import io from 'socket.io-client'
-
-import NodeFactory from './NodeFactory'
+import Client from './Client'
 
 const $roomIdInput = $('roomIdInput')
 const $primaryNodeCheckbox = $('primaryNodeCheckbox')
 const $connectButton = $('connectButton')
 
-const $chatMessageList = $('chatMessageList')
-
+const $sendBox = $('sendBox')
 const $messageInput = $('messageInput')
 const $sendButton = $('sendButton')
-
-const $targetsField = $('targetsField')
-const $targetsIdInput = $('targetsIdInput')
 
 /** UI MANAGEMENT */
 
@@ -22,15 +16,14 @@ $connectButton.addEventListener('click', () => {
   initConnection(connectionData)
 })
 
-$sendButton.addEventListener('click', () => {
-  node.send(
-    $messageInput.value,
-    getTargets()
-  )
+$sendButton.addEventListener('click', async () => {
+  const response = await client.send($messageInput.value)
+
+  window.alert(response)
 })
 
 $primaryNodeCheckbox.addEventListener('change', e => {
-  showTargetsField(e.target.checked)
+  showSendBox(!e.target.checked)
 })
 
 /** DOM HELPERS **/
@@ -39,69 +32,26 @@ function $ (elementId) {
   return document.getElementById(elementId)
 }
 
-function writeMessage ({ senderId, message }) {
-  const $messageWrapperItem = document.createElement('li')
-
-  const $senderIdItem = document.createElement('i')
-  $senderIdItem.appendChild(
-    document.createTextNode(`${senderId} `)
-  )
-
-  const $messageItem = document.createElement('span')
-  $messageItem.appendChild(
-    document.createTextNode(message)
-  )
-
-  $messageWrapperItem.appendChild($senderIdItem)
-  $messageWrapperItem.appendChild($messageItem)
-
-  $chatMessageList.appendChild($messageWrapperItem)
-}
-
-function showTargetsField (show) {
-  $targetsField.style.display = show ? 'initial' : 'none'
-}
-
-function getTargets () {
-  if ($targetsIdInput.value === '') return undefined
-  return $targetsIdInput.value.split(',').map(t => t.trim())
+function showSendBox (show) {
+  $sendBox.style.display = show ? 'initial' : 'none'
 }
 
 /** MANAGE CONNECTION **/
 
-let socket = null
-let node = null
+const client = new Client('http://localhost:3000')
 
-function initConnection (connectionData) {
-  closeConnectionIfAny()
+function initConnection ({ roomId, isPrimaryNode }) {
+  client.disconnect()
 
-  const { isPrimaryNode } = connectionData
+  client.connect(roomId, isPrimaryNode)
 
-  socket = io('http://localhost:3000', {
-    query: connectionData
-  })
+  client.onMessage(
+    ({ senderId, message, respond }) => {
+      const response = window.prompt(`${senderId} says ${message}`)
 
-  node = NodeFactory.createInstance({ isPrimaryNode })
-
-  node.on(
-    'signal',
-    data => socket.emit('signal', data)
+      respond(response)
+    }
   )
-
-  node.on(
-    'message',
-    writeMessage
-  )
-
-  socket.on('signal', data => {
-    node.signal(data)
-  })
-}
-
-function closeConnectionIfAny () {
-  if (socket !== null) {
-    socket.close()
-  }
 }
 
 function getConnectionData () {

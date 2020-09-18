@@ -13,6 +13,8 @@ class PrimaryNode {
     this._eventBus = new Emittery()
   }
 
+  get isPrimary () { return true }
+
   on (eventName, eventHandler) {
     return this._eventBus.on(eventName, eventHandler)
   }
@@ -54,6 +56,14 @@ class PrimaryNode {
     const siblingPeer = this._siblingsById.get(siblingId)
 
     siblingPeer.signal(signaldata)
+  }
+
+  close () {
+    this._eventBus.clearListeners()
+
+    for (const [, peerSibling] of this._siblingsById) {
+      peerSibling.destroy()
+    }
   }
 
   _handleSiblingSignal (siblingId, signal) {
