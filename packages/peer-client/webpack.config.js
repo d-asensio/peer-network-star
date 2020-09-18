@@ -12,7 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const SRC_PATH = path.resolve(__dirname, 'src')
 
 const ENTRY_FILE = path.join(__dirname, 'src/index.js')
-const BUILD_DIR = path.join(__dirname, 'build')
+const BUILD_DIR = path.join(__dirname, 'fake_dir')
 
 const PUBLIC_DIR = path.join(__dirname, 'public')
 const MAIN_HTML_FILE = path.join(PUBLIC_DIR, 'index.html')
@@ -22,28 +22,19 @@ const MAIN_HTML_FILE = path.join(PUBLIC_DIR, 'index.html')
 // #region Webpack Configuration Object
 
 module.exports = {
-  mode: (
-    isDevelopment()
-      ? 'development'
-      : 'production'
-  ),
+  mode: 'development',
   entry: {
     bundle: ENTRY_FILE
   },
   output: {
+    library: 'PeerClient',
+    libraryTarget: 'umd',
+    libraryExport: 'default',
     path: BUILD_DIR,
-    filename: (
-      isDevelopment()
-        ? '[name].js'
-        : '[name][hash:6].js'
-    )
+    filename: 'PeerClient.js'
   },
-  devtool: (
-    isDevelopment()
-      ? 'source-map'
-      : 'none'
-  ),
-  watch: isDevelopment(),
+  devtool: 'source-map',
+  watch: true,
   watchOptions: {
     aggregateTimeout: 300
   },
@@ -81,15 +72,6 @@ module.exports = {
     }),
     new HotModuleReplacementPlugin()
   ]
-}
-
-// #endregion
-
-// #region Configuration Utilities
-
-function isDevelopment () {
-  const { NODE_ENV = 'development' } = process.env
-  return NODE_ENV === 'development'
 }
 
 // #endregion

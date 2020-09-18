@@ -20,7 +20,8 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "test": "jest --coverage --verbose",
-    "test:watch": "yarn test --watch"
+    "test:watch": "yarn test --watch",
+    "prepare": "lerna run build"
   },
   "lint-staged": {
     "*.js": [

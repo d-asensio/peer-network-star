@@ -1,62 +1,173 @@
-import Client from './Client'
+import io from 'socket.io-client'
+import hat from 'hat'
+import Emittery from 'emittery'
 
-const $roomIdInput = $('roomIdInput')
-const $primaryNodeCheckbox = $('primaryNodeCheckbox')
-const $connectButton = $('connectButton')
+import NodeFactory from './NodeFactory'
 
-const $sendBox = $('sendBox')
-const $messageInput = $('messageInput')
-const $sendButton = $('sendButton')
+class PeerClient {
+  constructor (host) {
+    this._host = host
 
-/** UI MANAGEMENT */
+    this._socket = null
+    this._peerNode = null
 
-$connectButton.addEventListener('click', () => {
-  const connectionData = getConnectionData()
+    this._eventBus = new Emittery()
 
-  initConnection(connectionData)
-})
+    this._generateMessageId = hat.rack()
+  }
 
-$sendButton.addEventListener('click', async () => {
-  const response = await client.send($messageInput.value)
+  connect (roomId, isPrimaryNode = false) {
+    this._connectionIdleOrThrow()
 
-  window.alert(response)
-})
+    this._connectSocket({
+      roomId,
+      isPrimaryNode
+    })
 
-$primaryNodeCheckbox.addEventListener('change', e => {
-  showSendBox(!e.target.checked)
-})
+    this._connectPeerNode(isPrimaryNode)
+  }
 
-/** DOM HELPERS **/
+  disconnect () {
+    this._eventBus.clearListeners()
 
-function $ (elementId) {
-  return document.getElementById(elementId)
-}
+    this._disconnectSocket()
+    this._disconnectPeerNode()
+  }
 
-function showSendBox (show) {
-  $sendBox.style.display = show ? 'initial' : 'none'
-}
+  async send (message) {
+    this._senderIsNotPrimaryOrThrow()
 
-/** MANAGE CONNECTION **/
+    const messageId = this._generateMessageId()
 
-const client = new Client('http://localhost:3000')
-
-function initConnection ({ roomId, isPrimaryNode }) {
-  client.disconnect()
-
-  client.connect(roomId, isPrimaryNode)
-
-  client.onMessage(
-    ({ senderId, message, respond }) => {
-      const response = window.prompt(`${senderId} says ${message}`)
-
-      respond(response)
+    const request = {
+      id: messageId,
+      content: message
     }
-  )
-}
 
-function getConnectionData () {
-  return {
-    roomId: $roomIdInput.value,
-    isPrimaryNode: $primaryNodeCheckbox.checked
+    this._peerNode.send(request)
+
+    return this._waitForResponse(messageId)
+  }
+
+  onMessage (eventHandler) {
+    // TODO: siblings cannot attach to this event
+    return this._eventBus.on('message', eventHandler)
+  }
+
+  _connectionIdleOrThrow () {
+    if (this._socket !== null || this._peerNode !== null) {
+      throw new Error(
+        'There is a connection already active, `disconnect()` before opening a new one.'
+      )
+    }
+  }
+
+  _connectSocket (query) {
+    this._socket = io(
+      this._host,
+      { query }
+    )
+
+    this._attachSocketEvents()
+  }
+
+  _attachSocketEvents () {
+    this._socket.on('signal', data => {
+      this._peerNode.signal(data)
+    })
+  }
+
+  _connectPeerNode (isPrimary) {
+    this._peerNode = NodeFactory.createInstance({ isPrimary })
+
+    this._attachPeerNodeEvents()
+  }
+
+  _attachPeerNodeEvents () {
+    this._peerNode.on(
+      'signal',
+      data => this._socket.emit('signal', data)
+    )
+
+    this._peerNode.on(
+      'message',
+      data => this._handleMessageData(data)
+    )
+  }
+
+  _disconnectSocket () {
+    if (this._socket !== null) {
+      this._socket.close()
+      this._socket = null
+    }
+  }
+
+  _disconnectPeerNode () {
+    if (this._peerNode !== null) {
+      this._peerNode.close()
+      this._peerNode = null
+    }
+  }
+
+  _senderIsNotPrimaryOrThrow () {
+    if (this._peerNode.isPrimary) {
+      throw new Error(
+        'You are attempting to send a message from a primary node. Primary nodes are only allowe to anwer sibling ' +
+        'messages, please `disconnect()` and `connect()` again indicating that the node is not primary if you want ' +
+        'to send messages.'
+      )
+    }
+  }
+
+  async _waitForResponse (messageId, timeout = 10000) {
+    return Promise.race([
+      this._onceResponseArrives(messageId),
+      this._onceTimeout(timeout)
+    ])
+  }
+
+  async _onceResponseArrives (messageId) {
+    return this._eventBus.once(`response_${messageId}`)
+  }
+
+  async _onceTimeout (timeoutMs) {
+    return new Promise(
+      (resolve, reject) => setTimeout(() => {
+        reject(
+          new Error(
+            `Timeout: We did not get a response in ${timeoutMs}ms`
+          )
+        )
+      }, timeoutMs)
+    )
+  }
+
+  _handleMessageData (data) {
+    const { senderId, message } = data
+
+    if (this._peerNode.isPrimary) {
+      this._eventBus.emit(
+        'message',
+        {
+          senderId,
+          message: message.content,
+          respond: responseContent => {
+            const response = {
+              id: message.id,
+              content: responseContent
+            }
+
+            this._peerNode.send(response, [senderId])
+          }
+        }
+      )
+    } else {
+      this._eventBus.emit(
+        `response_${message.id}`,
+        message.content
+      )
+    }
   }
 }
+
+export default PeerClient
