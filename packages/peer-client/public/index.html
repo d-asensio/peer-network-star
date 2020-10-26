@@ -91,6 +91,26 @@
             respond(response)
           }
         )
+
+        client.onPeerConnect(() => {
+          console.log('New Peer connected!')
+        })
+
+        client.onPeerDisconnect(() => {
+          console.log('Peer disconnected!')
+        })
+
+        client.onPeerError(error => {
+          console.error(error)
+        })
+
+        client.onSocketConnect(() => {
+          console.log('Signaling server connected!')
+        })
+
+        client.onSocketDisconnect(() => {
+          console.log('Signaling server disconnected!')
+        })
       }
 
       ready(function () {
