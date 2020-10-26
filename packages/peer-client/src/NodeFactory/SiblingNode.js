@@ -56,6 +56,21 @@ class SiblingNode {
       'data',
       dataString => this._handleReceivedData(dataString)
     )
+
+    this._peerConnection.on(
+      'connect',
+      () => this._handleStartedConnection()
+    )
+
+    this._peerConnection.on(
+      'close',
+      () => this._handleClosedConnection()
+    )
+
+    this._peerConnection.on(
+      'error',
+      error => this._handleError(error)
+    )
   }
 
   _handleGeneratedSignal (signal) {
@@ -74,6 +89,25 @@ class SiblingNode {
     this._eventBus.emit(
       'message',
       data
+    )
+  }
+
+  _handleStartedConnection () {
+    this._eventBus.emit(
+      'peerConnect'
+    )
+  }
+
+  _handleClosedConnection () {
+    this._eventBus.emit(
+      'peerDisconnect'
+    )
+  }
+
+  _handleError (error) {
+    this._eventBus.emit(
+      'peerError',
+      error
     )
   }
 }

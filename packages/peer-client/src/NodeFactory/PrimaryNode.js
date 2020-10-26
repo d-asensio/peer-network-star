@@ -50,6 +50,21 @@ class PrimaryNode {
         dataString => this._handleReceivedSiblingData(dataString)
       )
 
+      newSiblingPeer.on(
+        'connect',
+        () => this._handleStartedConnection()
+      )
+
+      newSiblingPeer.on(
+        'close',
+        () => this._handleClosedConnection()
+      )
+
+      newSiblingPeer.on(
+        'error',
+        error => this._handleError(error)
+      )
+
       this._siblingsById.set(siblingId, newSiblingPeer)
     }
 
@@ -82,6 +97,25 @@ class PrimaryNode {
     this._eventBus.emit(
       'message',
       data
+    )
+  }
+
+  _handleStartedConnection () {
+    this._eventBus.emit(
+      'peerConnect'
+    )
+  }
+
+  _handleClosedConnection () {
+    this._eventBus.emit(
+      'peerDisconnect'
+    )
+  }
+
+  _handleError (error) {
+    this._eventBus.emit(
+      'peerError',
+      error
     )
   }
 }

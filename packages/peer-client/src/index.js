@@ -54,6 +54,26 @@ class PeerClient {
     return this._eventBus.on('message', eventHandler)
   }
 
+  onPeerConnect (eventHandler) {
+    return this._eventBus.on('peerConnect', eventHandler)
+  }
+
+  onPeerDisconnect (eventHandler) {
+    return this._eventBus.on('peerDisconnect', eventHandler)
+  }
+
+  onPeerError (eventHandler) {
+    return this._eventBus.on('peerError', eventHandler)
+  }
+
+  onSocketConnect (eventHandler) {
+    return this._eventBus.on('socketConnect', eventHandler)
+  }
+
+  onSocketDisconnect (eventHandler) {
+    return this._eventBus.on('socketDisconnect', eventHandler)
+  }
+
   _connectionIdleOrThrow () {
     if (this._socket !== null || this._peerNode !== null) {
       throw new Error(
@@ -75,6 +95,14 @@ class PeerClient {
     this._socket.on('signal', data => {
       this._peerNode.signal(data)
     })
+
+    this._socket.on('connect', () => {
+      this._eventBus.emit('socketConnect')
+    })
+
+    this._socket.on('disconnect', () => {
+      this._eventBus.emit('socketDisconnect')
+    })
   }
 
   _connectPeerNode (isPrimary) {
@@ -92,6 +120,21 @@ class PeerClient {
     this._peerNode.on(
       'message',
       data => this._handleMessageData(data)
+    )
+
+    this._peerNode.on(
+      'peerConnect',
+      () => this._eventBus.emit('peerConnect')
+    )
+
+    this._peerNode.on(
+      'peerDisconnect',
+      () => this._eventBus.emit('peerDisconnect')
+    )
+
+    this._peerNode.on(
+      'peerError',
+      error => this._eventBus.emit('peerError', error)
     )
   }
 
