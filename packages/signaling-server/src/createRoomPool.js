@@ -14,6 +14,7 @@ const createRoomPool = function (io) {
         })
 
         room.on('broadcastSiblingSignal', signal => {
+          if (!room.primaryNode) return
           const { id } = room.primaryNode
 
           io.to(id).emit('signal', signal)
