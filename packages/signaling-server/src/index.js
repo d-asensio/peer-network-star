@@ -5,7 +5,10 @@ const Node = require('./Node')
 
 function SignalingServer () {
   const io = socketIO({
-    serveClient: false
+    serveClient: false,
+    cors: {
+      origin: true
+    }
   })
 
   const roomPool = createRoomPool(io)
