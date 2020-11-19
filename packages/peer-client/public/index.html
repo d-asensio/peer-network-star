@@ -14,6 +14,7 @@
       <input id="primaryNodeCheckbox" type="checkbox" />
     </label>
     <button id="connectButton">Connect</button>
+    <button id="disconnectButton">Disconnect</button>
 
     <div id="sendBox">
       <label>
@@ -27,6 +28,7 @@
       const $roomIdInput = $('roomIdInput')
       const $primaryNodeCheckbox = $('primaryNodeCheckbox')
       const $connectButton = $('connectButton')
+      const $disconnectButton = $('disconnectButton')
 
       const $sendBox = $('sendBox')
       const $messageInput = $('messageInput')
@@ -40,6 +42,10 @@
         initConnection(connectionData)
       })
 
+      $disconnectButton.addEventListener('click', () => {
+        closeConnection()
+      })
+      
       $sendButton.addEventListener('click', async () => {
         const response = await client.send($messageInput.value)
 
@@ -73,15 +79,13 @@
       let client = null
 
       function getConnectionData () {
-          return {
-            roomId: $roomIdInput.value,
-            isPrimaryNode: $primaryNodeCheckbox.checked
-          }
+        return {
+          roomId: $roomIdInput.value,
+          isPrimaryNode: $primaryNodeCheckbox.checked
         }
+      }
 
       function initConnection ({ roomId, isPrimaryNode }) {
-        client.disconnect()
-
         client.connect(roomId, isPrimaryNode)
 
         client.onMessage(
@@ -111,6 +115,10 @@
         client.onSocketDisconnect(() => {
           console.log('Signaling server disconnected!')
         })
+      }
+
+      function closeConnection () {
+        client.disconnect()
       }
 
       ready(function () {

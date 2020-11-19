@@ -7,6 +7,7 @@ import NodeFactory from './NodeFactory'
 class PeerClient {
   constructor (host) {
     this._host = host
+    this._roomId = null
 
     this._socket = null
     this._peerNode = null
@@ -18,6 +19,8 @@ class PeerClient {
 
   connect (roomId, isPrimaryNode = false) {
     this._connectionIdleOrThrow()
+
+    this._roomId = roomId
 
     this._connectSocket({
       roomId,
@@ -129,7 +132,12 @@ class PeerClient {
 
     this._peerNode.on(
       'peerDisconnect',
-      () => this._eventBus.emit('peerDisconnect')
+      () => {
+        this._eventBus.emit('peerDisconnect')
+        if (!this._peerNode.isPrimary) {
+          this._reconnect()
+        }
+      }
     )
 
     this._peerNode.on(
@@ -150,6 +158,13 @@ class PeerClient {
       this._peerNode.close()
       this._peerNode = null
     }
+  }
+
+  _reconnect () {
+    this._disconnectSocket()
+    this._disconnectPeerNode()
+
+    this.connect(this._roomId)
   }
 
   _senderIsNotPrimaryOrThrow () {
