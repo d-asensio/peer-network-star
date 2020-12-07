@@ -22,15 +22,15 @@
     "prepare": "yarn build"
   },
   "devDependencies": {
-    "@babel/cli": "^7.11.5",
-    "@babel/core": "^7.11.5",
-    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
-    "@babel/preset-env": "^7.11.5",
-    "babel-loader": "^8.1.0",
-    "html-webpack-plugin": "^3.2.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "@babel/cli": "7.11.6",
+    "@babel/core": "7.11.6",
+    "@babel/plugin-transform-modules-commonjs": "7.10.4",
+    "@babel/preset-env": "7.11.5",
+    "babel-loader": "8.1.0",
+    "html-webpack-plugin": "3.2.0",
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12",
+    "webpack-dev-server": "3.11.0"
   },
   "dependencies": {
     "emittery": "^0.7.1",

@@ -20,7 +20,7 @@
     "dev": "nodemon bin/signaling-server.js --port 3000"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "nodemon": "2.0.4"
   },
   "dependencies": {
     "emittery": "^0.7.1",
