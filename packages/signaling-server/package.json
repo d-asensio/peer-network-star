@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "emittery": "^0.7.1",
-    "socket.io": "3.0.3",
+    "socket.io": "3.0.4",
     "yargs": "^16.0.3"
   }
 }

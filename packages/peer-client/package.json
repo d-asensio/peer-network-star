@@ -36,6 +36,6 @@
     "emittery": "^0.7.1",
     "hat": "^0.0.3",
     "simple-peer": "^9.7.2",
-    "socket.io-client": "3.0.3"
+    "socket.io-client": "3.0.4"
   }
 }
