@@ -1,15 +1,22 @@
 const socketIO = require('socket.io')
+const redis = require('socket.io-redis')
 
 const createRoomPool = require('./createRoomPool')
 const Node = require('./Node')
 
-function SignalingServer () {
+function SignalingServer ({ redis: redisConfig }) {
   const io = socketIO({
     serveClient: false,
     cors: {
       origin: true
     }
   })
+
+  if (redisConfig) {
+    const { host, port } = redisConfig
+
+    io.adapter(redis({ host, port }))
+  }
 
   const roomPool = createRoomPool(io)
 
