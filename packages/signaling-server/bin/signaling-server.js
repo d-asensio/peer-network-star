@@ -1,14 +1,32 @@
 #!/usr/bin/env node
-const yargs = require('yargs')
+const { cosmiconfigSync } = require('cosmiconfig')
 
 const SignalingServer = require('../src')
 
-const server = SignalingServer()
+const explorerSync = cosmiconfigSync('signaling-server-star-network')
+const configFile = explorerSync.search()
 
-const { argv } = yargs
+if (!configFile) {
+  console.error('You must use a config file like:`signaling-server-star-network.config.js`. README for more details')
+  process.exit(1)
+}
 
-if (!argv.port) {
-  console.error('You must specify a port via the `--port <port>` argument')
+const { config } = configFile
+const { port, redis } = config
+
+const server = SignalingServer({ redis })
+
+if (redis) {
+  if (redis.host && !redis.port) {
+    console.warn('Maybe you forgot `redis: { port }` in your config file')
+  }
+  if (!redis.host && redis.port) {
+    console.warn('Maybe you forgot `redis: { host }` in your config file')
+  }
+}
+
+if (!port) {
+  console.error('You must specify a port via the `port` in your config file')
 } else {
-  server.listen(argv.port)
+  server.listen(port)
 }

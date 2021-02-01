@@ -23,8 +23,10 @@
     "nodemon": "2.0.6"
   },
   "dependencies": {
+    "cosmiconfig": "^7.0.0",
     "emittery": "^0.7.1",
     "socket.io": "3.0.4",
+    "socket.io-redis": "^6.0.1",
     "yargs": "^16.0.3"
   }
 }
