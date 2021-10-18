@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "cosmiconfig": "^7.0.0",
-    "emittery": "^0.7.1",
+    "emittery": "^0.10.0",
     "socket.io": "3.0.4",
     "socket.io-redis": "^6.0.1",
     "yargs": "^16.0.3"
