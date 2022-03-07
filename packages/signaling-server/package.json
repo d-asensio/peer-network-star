@@ -20,7 +20,7 @@
     "dev": "nodemon bin/signaling-server.js --port 3000"
   },
   "devDependencies": {
-    "nodemon": "2.0.6"
+    "nodemon": "2.0.15"
   },
   "dependencies": {
     "cosmiconfig": "^7.0.0",
